@@ -1,0 +1,152 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Structure to store song details
+struct Song {
+    char title[100];
+    char artist[100];
+    char genre[50];
+    struct Song* next;  // Pointer to the next song in the playlist
+};
+
+// Function to create a new song node
+struct Song* createSong(char* title, char* artist, char* genre) {
+    struct Song* newSong = (struct Song*)malloc(sizeof(struct Song));
+    strcpy(newSong->title, title);
+    strcpy(newSong->artist, artist);
+    strcpy(newSong->genre, genre);
+    newSong->next = NULL;
+    return newSong;
+}
+
+// Function to add a song to the playlist
+void addSong(struct Song** head, char* title, char* artist, char* genre) {
+    struct Song* newSong = createSong(title, artist, genre);
+    if (*head == NULL) {
+        *head = newSong;
+    } else {
+        struct Song* temp = *head;
+        while (temp->next != NULL) {
+            temp = temp->next;
+        }
+        temp->next = newSong;
+    }
+    printf("Song added to the playlist!\n");
+}
+
+// Function to delete a song from the playlist
+void deleteSong(struct Song** head, char* title) {
+    struct Song* temp = *head;
+    struct Song* prev = NULL;
+    if (temp != NULL && strcmp(temp->title, title) == 0) {
+        *head = temp->next;
+        free(temp);
+        printf("Song deleted from the playlist.\n");
+        return;
+    }
+    while (temp != NULL && strcmp(temp->title, title) != 0) {
+        prev = temp;
+        temp = temp->next;
+    }
+    if (temp == NULL) {
+        printf("Song not found in the playlist.\n");
+        return;
+    }
+    prev->next = temp->next;
+    free(temp);
+    printf("Song deleted from the playlist.\n");
+}
+
+// Function to display the playlist
+void displayPlaylist(struct Song* head) {
+    if (head == NULL) {
+        printf("The playlist is empty.\n");
+        return;
+    }
+    struct Song* temp = head;
+    printf("Playlist:\n");
+    while (temp != NULL) {
+        printf("Title: %s | Artist: %s | Genre: %s\n", temp->title, temp->artist, temp->genre);
+        temp = temp->next;
+    }
+}
+
+// Function to search for a song by title
+void searchSong(struct Song* head, char* title) {
+    struct Song* temp = head;
+    while (temp != NULL) {
+        if (strcmp(temp->title, title) == 0) {
+            printf("Found song: Title: %s | Artist: %s | Genre: %s\n", temp->title, temp->artist, temp->genre);
+            return;
+        }
+        temp = temp->next;
+    }
+    printf("Song not found in the playlist.\n");
+}
+
+// Main function to test the playlist functionality
+int main() {
+    struct Song* playlist = NULL;
+    int choice;
+    char title[100], artist[100], genre[50];
+
+    do {
+        printf("\nPlaylist Menu:\n");
+        printf("1. Add a song\n");
+        printf("2. Delete a song\n");
+        printf("3. Search for a song\n");
+        printf("4. Display playlist\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar();  // to consume the newline character left by scanf
+
+        switch (choice) {
+            case 1:
+                // Add a song
+                printf("Enter song title: ");
+                fgets(title, sizeof(title), stdin);
+                title[strcspn(title, "\n")] = 0;  // Remove the newline character
+                printf("Enter artist: ");
+                fgets(artist, sizeof(artist), stdin);
+                artist[strcspn(artist, "\n")] = 0;  // Remove the newline character
+                printf("Enter genre: ");
+                fgets(genre, sizeof(genre), stdin);
+                genre[strcspn(genre, "\n")] = 0;  // Remove the newline character
+                addSong(&playlist, title, artist, genre);
+                break;
+
+            case 2:
+                // Delete a song
+                printf("Enter song title to delete: ");
+                fgets(title, sizeof(title), stdin);
+                title[strcspn(title, "\n")] = 0;  // Remove the newline character
+                deleteSong(&playlist, title);
+                break;
+
+            case 3:
+                // Search for a song
+                printf("Enter song title to search for: ");
+                fgets(title, sizeof(title), stdin);
+                title[strcspn(title, "\n")] = 0;  // Remove the newline character
+                searchSong(playlist, title);
+                break;
+
+            case 4:
+                // Display the playlist
+                displayPlaylist(playlist);
+                break;
+
+            case 5:
+                // Exit the program
+                printf("Exiting the program.\n");
+                break;
+
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    } while (choice != 5);
+
+    return 0;
+}
